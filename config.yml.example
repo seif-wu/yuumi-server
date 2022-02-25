@@ -1,0 +1,11 @@
+dataSource:
+  driverName: mysql
+  host: 127.0.0.1
+  port: 3306
+  database: database_name
+  username: root
+  password: -
+  config: charset=utf8mb4&parseTime=True&loc=Local
+
+themoviedb:
+  apiKey: -
