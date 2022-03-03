@@ -2,40 +2,44 @@ package movie
 
 import (
 	"encoding/json"
-	"io/ioutil"
-	"log"
+	"fmt"
 	"net/http"
-	"time"
+	"yuumi/internal/pkg/themoviedb"
 
 	"github.com/gin-gonic/gin"
 	"github.com/spf13/viper"
 )
 
+type DiscoverQuery struct {
+	Page                       string `json:"page"`
+	Language                   string `json:"language"`
+	SortBy                     string `json:"sort_by"`
+	WithWatchMonetizationTypes string `json:"with_watch_monetization_types"`
+}
+
+func NewDiscoverQuery(c *gin.Context) DiscoverQuery {
+	var discoverQuery DiscoverQuery
+	discoverQuery.Language = c.DefaultQuery("language", "zh")
+	discoverQuery.Page = c.DefaultQuery("page", "1")
+	discoverQuery.SortBy = c.DefaultQuery("sort_by", "popularity.desc")
+	discoverQuery.WithWatchMonetizationTypes = c.DefaultQuery("with_watch_monetization_types", "flatrate")
+
+	return discoverQuery
+}
+
 func Discover(c *gin.Context) {
-	client := &http.Client{
-		Timeout: 60 * time.Second,
-	}
+	client := themoviedb.Client(themoviedb.ClientConfig{
+		ApiKey: viper.GetString("themoviedb.apiKey"),
+	})
 
-	req, err := http.NewRequest("GET", "https://api.themoviedb.org/3/discover/movie", nil)
-	if err != nil {
-		log.Fatal(err)
-	}
+	discoverQuery := NewDiscoverQuery(c)
 
-	// 设置参数
-	params := req.URL.Query()
+	fmt.Println(discoverQuery)
 
-	params.Add("api_key", viper.GetString("themoviedb.apiKey"))
-	params.Add("language", "zh")
-	params.Add("sort_by", "popularity.desc")
-	params.Add("with_watch_monetization_types", "flatrate")
-	params.Add("page", "1")
-
-	req.URL.RawQuery = params.Encode()
-
-	resp, _ := client.Do(req)
-	body, _ := ioutil.ReadAll(resp.Body)
-	var data interface{}
-	json.Unmarshal(body, &data)
+	var params map[string]string
+	discoverQueryMap, _ := json.Marshal(discoverQuery)
+	json.Unmarshal(discoverQueryMap, &params)
+	data, _ := client.Discover(params)
 
 	c.JSON(http.StatusOK, data)
 }
