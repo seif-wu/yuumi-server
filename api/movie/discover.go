@@ -27,7 +27,7 @@ func NewDiscoverQuery(c *gin.Context) DiscoverQuery {
 	return discoverQuery
 }
 
-func Discover(c *gin.Context) {
+func (u *handler) Discover(c *gin.Context) {
 	client := themoviedb.Client(themoviedb.ClientConfig{
 		ApiKey: viper.GetString("themoviedb.apiKey"),
 	})

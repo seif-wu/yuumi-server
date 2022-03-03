@@ -1,3 +1,22 @@
+app:
+  name: Yuumi
+  mode: dev
+  port: 8088
+
+log:
+  level: debug
+  filename: log/production.log
+  max-size: 200
+  max-age: 30
+  max-backups: 7
+
+mysql:
+  host: 127.0.0.1
+  port: 3306
+  user: root
+  password: -
+  dbname: database_name
+
 dataSource:
   driverName: mysql
   host: 127.0.0.1
